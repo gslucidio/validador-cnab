@@ -11,13 +11,17 @@ st.set_page_config(page_title="Hub Operacional FIDC - VIZ Gestora", layout="wide
 st.sidebar.title("🛠️ Ferramentas FIDC")
 opcao_menu = st.sidebar.radio(
     "Escolha a operação desejada:",
-    ["📥 Validar Retorno (TXT -> Excel)", "📤 Gerar Remessa (Excel -> TXT)"]
+    [
+        "📊 1. Validador CNAB", 
+        "🔍 2. Leitor CNAB", 
+        "⚙️ 3. Gerador CNAB"
+    ]
 )
 st.sidebar.markdown("---")
 st.sidebar.info("Sistema de processamento posicional padrão CNAB 444.")
 
 # ==============================================================================
-# DICIONÁRIO DE LAYOUT 444 (Corrigido conforme o arquivo da ID CTVM)
+# DICIONÁRIO DE LAYOUT 444 
 # ==============================================================================
 LAYOUT_444 = [
     ("01_ID_Registro", 1, 'str', 'spaces'),
@@ -32,7 +36,7 @@ LAYOUT_444 = [
     ("10_Num_Controle", 25, 'str', 'spaces'),
     ("11_Num_Banco", 3, 'str', 'zeros'),
     ("12_Zeros", 5, 'str', 'zeros'),
-    ("13_ID_Titulo_Banco", 11, 'str', 'spaces'), # Ajustado para spaces
+    ("13_ID_Titulo_Banco", 11, 'str', 'spaces'), 
     ("14_Digito_Nosso_Num", 1, 'str', 'spaces'),
     ("15_Valor_Pago", 10, 'float', 'zeros'),
     ("16_Condicao_Papeleta", 1, 'str', 'spaces'),
@@ -54,7 +58,7 @@ LAYOUT_444 = [
     ("32_Instrucao_1", 2, 'str', 'zeros'),
     ("33_Instrucao_2", 1, 'str', 'zeros'),
     ("34_Tipo_Pessoa_Ced", 2, 'str', 'zeros'),
-    ("35_Zeros", 12, 'str', 'spaces'),           # Ajustado para spaces
+    ("35_Zeros", 12, 'str', 'spaces'),           
     ("36_Num_Termo_Cessao", 19, 'str', 'spaces'),
     ("37_Valor_Aquisicao", 13, 'float', 'zeros'),
     ("38_Valor_Abatimento", 13, 'float', 'zeros'),
@@ -62,7 +66,7 @@ LAYOUT_444 = [
     ("40_Insc_Sacado", 14, 'str', 'zeros'),
     ("41_Nome_Sacado", 40, 'str', 'spaces'),
     ("42_Endereco_Sacado", 40, 'str', 'spaces'),
-    ("43_Num_NF_Duplicata", 9, 'str', 'spaces'), # Ajustado para spaces
+    ("43_Num_NF_Duplicata", 9, 'str', 'spaces'), 
     ("44_Serie_NF", 3, 'str', 'spaces'),
     ("45_CEP_Sacado", 8, 'str', 'zeros'),
     ("46_Cedente", 60, 'str', 'spaces'),
@@ -71,7 +75,7 @@ LAYOUT_444 = [
 ]
 
 # ==============================================================================
-# FUNÇÕES AUXILIARES DE FORMATAÇÃO (Bugs Corrigidos)
+# FUNÇÕES AUXILIARES DE FORMATAÇÃO 
 # ==============================================================================
 def str_para_valor(texto):
     texto = texto.strip()
@@ -80,7 +84,6 @@ def str_para_valor(texto):
 
 def processar_string_cnab(valor, tamanho, alinhamento):
     val = str(valor).strip()
-    # Verifica se a célula inteira é nula para não truncar nomes reais
     if val in ('nan', 'None'):
         val = ''
     if val.endswith('.0'): 
@@ -104,15 +107,16 @@ def processar_float_cnab(valor, tamanho):
     return val_limpo.zfill(tamanho)[:tamanho]
 
 # ==============================================================================
-# MÓDULO 1: VALIDAR RETORNO 
+# MÓDULO 1: VALIDADOR CNAB 
 # ==============================================================================
-if opcao_menu == "📥 Validar Retorno (TXT -> Excel)":
+if opcao_menu == "📊 1. Validador CNAB":
     st.title("📊 Validador de Arquivos CNAB 444")
-    arquivo_upado = st.file_uploader("Faça o upload do ficheiro de retorno (.REM ou .TXT)", type=["rem", "txt", "REM", "TXT"])
+    st.markdown("Cruza os valores de **Aquisição vs Nominal** e aponta as divergências do lote.")
+    arquivo_upado = st.file_uploader("Upload do ficheiro (.REM ou .TXT)", type=["rem", "txt", "REM", "TXT"])
 
     if arquivo_upado is not None:
         titulos = []
-        linhas = arquivo_upado.getvalue().decode("utf-8").splitlines()
+        linhas = arquivo_upado.getvalue().decode("utf-8", errors="ignore").splitlines()
         barra_progresso = st.progress(0)
         
         for num_linha, linha in enumerate(linhas, start=1):
@@ -146,7 +150,7 @@ if opcao_menu == "📥 Validar Retorno (TXT -> Excel)":
                            (df_detalhe['Validacao (Titulo >= Aquisicao)'] == 'NOK').sum()]
             })
 
-            st.success("✅ Ficheiro processado com sucesso!")
+            st.success("✅ Ficheiro validado com sucesso!")
             col1, col2 = st.columns([1, 2])
             with col1: st.dataframe(df_resumo, use_container_width=True)
             with col2: st.dataframe(df_detalhe, use_container_width=True)
@@ -155,14 +159,74 @@ if opcao_menu == "📥 Validar Retorno (TXT -> Excel)":
             with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
                 df_detalhe.to_excel(writer, sheet_name='Relatorio', index=False)
             
-            st.download_button("📥 Descarregar Folha de Cálculo", data=buffer.getvalue(), 
+            st.download_button("📥 Baixar Relatório de Validação", data=buffer.getvalue(), 
                                file_name=f"Validacao_{arquivo_upado.name}.xlsx", type="primary")
 
 # ==============================================================================
-# MÓDULO 2: GERAR REMESSA 
+# MÓDULO 2: LEITOR CNAB (NOVO)
 # ==============================================================================
-elif opcao_menu == "📤 Gerar Remessa (Excel -> TXT)":
-    st.title("⚙️ Gerador de Remessa CNAB")
+elif opcao_menu == "🔍 2. Leitor CNAB":
+    st.title("🔍 Leitor e Extrator de CNAB 444")
+    st.markdown("Transforma qualquer arquivo texto de remessa ou retorno em uma planilha de Excel com 48 colunas.")
+    
+    arquivo_upado = st.file_uploader("Faça o upload do arquivo CNAB (.REM / .TXT)", type=["rem", "txt", "REM", "TXT"])
+    
+    if arquivo_upado is not None:
+        linhas = arquivo_upado.getvalue().decode("utf-8", errors="ignore").splitlines()
+        titulos_extraidos = []
+        barra_progresso = st.progress(0)
+        
+        for num_linha, linha in enumerate(linhas):
+            if not linha.strip(): continue
+            linha = linha.ljust(444)
+            
+            if linha[0] == '1': # Somente linhas de detalhe
+                titulo_dict = {}
+                pos_atual = 0
+                
+                for col_nome, tamanho, tipo, alinhamento in LAYOUT_444:
+                    valor_bruto = linha[pos_atual : pos_atual + tamanho]
+                    
+                    if tipo == 'float':
+                        try:
+                            # Converte de volta de string sem vírgula para moeda real (ex: 000000015050 -> 150.50)
+                            valor_num = float(valor_bruto) / 100
+                        except:
+                            valor_num = 0.0
+                        titulo_dict[col_nome] = valor_num
+                    else:
+                        # Limpa espaços em branco nas pontas para a planilha ficar limpa
+                        titulo_dict[col_nome] = valor_bruto.strip()
+                        
+                    pos_atual += tamanho
+                    
+                titulos_extraidos.append(titulo_dict)
+            barra_progresso.progress((num_linha + 1) / len(linhas))
+            
+        if titulos_extraidos:
+            df_leitor = pd.DataFrame(titulos_extraidos)
+            st.success(f"✅ Arquivo lido perfeitamente! {len(df_leitor)} títulos foram extraídos para a planilha.")
+            st.dataframe(df_leitor.head(), use_container_width=True)
+            
+            buffer = io.BytesIO()
+            with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+                df_leitor.to_excel(writer, sheet_name='Titulos', index=False)
+                
+            st.download_button(
+                label="📥 Baixar Planilha Completa (48 Colunas)",
+                data=buffer.getvalue(),
+                file_name=f"Extraido_{arquivo_upado.name}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                type="primary"
+            )
+        else:
+            st.warning("⚠️ Nenhum registro de título (linha iniciada com '1') encontrado neste arquivo.")
+
+# ==============================================================================
+# MÓDULO 3: GERADOR CNAB 
+# ==============================================================================
+elif opcao_menu == "⚙️ 3. Gerador CNAB":
+    st.title("⚙️ Gerador de Remessa CNAB 444")
     
     with st.expander("🛠️ 1. Configurações do Cabeçalho (Header - Linha 0)", expanded=True):
         st.markdown("Preencha ou altere os parâmetros para a montagem do cabeçalho da remessa.")
@@ -193,7 +257,7 @@ elif opcao_menu == "📤 Gerar Remessa (Excel -> TXT)":
     
     st.subheader("2. Títulos (Detalhe)")
     st.download_button(
-        label="📥 Descarregar Template Padrão (48 Colunas)",
+        label="📥 Baixar Template Padrão (48 Colunas)",
         data=buffer_tpl.getvalue(),
         file_name="Template_48_Colunas_CNAB.xlsx"
     )
@@ -230,7 +294,6 @@ elif opcao_menu == "📤 Gerar Remessa (Excel -> TXT)":
                     header += processar_string_cnab(nome_banco.upper(), 15, 'spaces')
                     header += processar_string_cnab(data_geracao, 6, 'zeros')
                     
-                    # Espaçamento posicional e o MX0000001
                     header += " " * 8  
                     header += processar_string_cnab(id_sistema, 9, 'spaces')
                     
@@ -260,7 +323,7 @@ elif opcao_menu == "📤 Gerar Remessa (Excel -> TXT)":
                     conteudo_final = "\n".join(linhas_cnab)
                     
                     st.download_button(
-                        label="📥 Descarregar Ficheiro CNAB (.REM)",
+                        label="📥 Baixar Arquivo CNAB (.REM)",
                         data=conteudo_final,
                         file_name=f"CB{data_geracao}.REM",
                         mime="text/plain",
