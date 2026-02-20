@@ -12,9 +12,9 @@ st.sidebar.title("🛠️ Ferramentas FIDC")
 opcao_menu = st.sidebar.radio(
     "Escolha a operação desejada:",
     [
-        "📊 Validador CNAB", 
-        "🔍 Leitor CNAB", 
-        "⚙️ Gerador CNAB"
+        "📊 1. Validador CNAB", 
+        "🔍 2. Leitor CNAB", 
+        "⚙️ 3. Gerador CNAB"
     ]
 )
 st.sidebar.markdown("---")
@@ -332,4 +332,3 @@ elif opcao_menu == "⚙️ 3. Gerador CNAB":
                     
         except Exception as e:
             st.error(f"Erro ao processar a folha de cálculo: {e}")
-
