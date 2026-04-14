@@ -35,7 +35,7 @@ LAYOUT_444 = [
     ("12_Zeros", 5, 'str', 'zeros', False),
     ("13_ID_Titulo_Banco", 11, 'str', 'rjust', False),
     ("14_Digito_Nosso_Num", 1, 'str', 'rjust', False),
-    ("15_Valor_Pago", 10, 'float', 'zeros', False),
+    ("15_Valor_Pago", 10, 'float', 'zeros', True),
     ("16_Condicao_Papeleta", 1, 'str', 'rjust', False),
     ("17_Emite_Papeleta", 1, 'str', 'rjust', False),
     ("18_Data_Liquidacao", 6, 'str', 'zeros', True),
