@@ -89,8 +89,22 @@ def processar_string_cnab(valor, tamanho, alinhamento):
 
 def processar_float_cnab(valor, tamanho):
     val = str(valor).strip()
-    v_float = float(val) if val not in ('nan', 'None', '') else 0.0
-    return f"{v_float:.2f}".replace(".", "").replace(",", "").zfill(tamanho)[:tamanho]
+    
+    if val in ('nan', 'None', ''):
+        v_float = 0.0
+    else:
+        try:
+            # Inteligência para ler o padrão brasileiro (ex: 1.500,50 ou 1500,50)
+            if ',' in val:
+                val = val.replace('.', '')   # Primeiro remove qualquer ponto de milhar
+                val = val.replace(',', '.')  # Transforma a vírgula decimal no ponto do Python
+                
+            v_float = float(val)
+        except ValueError:
+            v_float = 0.0
+            
+    # Formata com 2 casas decimais, remove o ponto final e preenche com zeros à esquerda
+    return f"{v_float:.2f}".replace(".", "").zfill(tamanho)[:tamanho]
 
 def salvar_excel_formatado(df, sheet_name='Titulos'):
     buffer = io.BytesIO()
