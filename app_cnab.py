@@ -11,71 +11,69 @@ st.set_page_config(page_title="Hub Operacional FIDC - VIZ Gestora", layout="wide
 st.sidebar.title("🛠️ Ferramentas FIDC")
 opcao_menu = st.sidebar.radio(
     "Escolha a operação desejada:",
-    [
-        "📊 1. Validador CNAB", 
-        "🔍 2. Leitor CNAB", 
-        "⚙️ 3. Gerador CNAB"
-    ]
+    ["📊 1. Validador CNAB", "🔍 2. Leitor CNAB", "⚙️ 3. Gerador CNAB"]
 )
 st.sidebar.markdown("---")
 st.sidebar.info("Sistema de processamento posicional padrão CNAB 444.")
 
 # ==============================================================================
-# DICIONÁRIO DE LAYOUT 444 
+# DICIONÁRIO DE LAYOUT 444 (Com Coluna do Cedente Dividida)
 # ==============================================================================
+# Ordem: (Nome da Coluna, Tamanho, Tipo, Alinhamento, Highlight_Amarelo?)
 LAYOUT_444 = [
-    ("01_ID_Registro", 1, 'str', 'spaces'),
-    ("02_Debito_Automatico", 19, 'str', 'spaces'),
-    ("03_Coobrigacao", 2, 'str', 'zeros'),
-    ("04_Caract_Especial", 2, 'str', 'zeros'),
-    ("05_Modalidade", 4, 'str', 'zeros'),
-    ("06_Natureza", 2, 'str', 'zeros'),
-    ("07_Origem_Recurso", 4, 'str', 'zeros'),
-    ("08_Classe_Risco", 2, 'str', 'spaces'),
-    ("09_Zeros", 1, 'str', 'zeros'),
-    ("10_Num_Controle", 25, 'str', 'spaces'),
-    ("11_Num_Banco", 3, 'str', 'zeros'),
-    ("12_Zeros", 5, 'str', 'zeros'),
-    ("13_ID_Titulo_Banco", 11, 'str', 'spaces'), 
-    ("14_Digito_Nosso_Num", 1, 'str', 'spaces'),
-    ("15_Valor_Pago", 10, 'float', 'zeros'),
-    ("16_Condicao_Papeleta", 1, 'str', 'spaces'),
-    ("17_Emite_Papeleta", 1, 'str', 'spaces'),
-    ("18_Data_Liquidacao", 6, 'str', 'zeros'),
-    ("19_ID_Operacao_Banco", 4, 'str', 'spaces'),
-    ("20_Ind_Rateio", 1, 'str', 'spaces'),
-    ("21_End_Aviso_Debito", 1, 'str', 'zeros'),
-    ("22_Branco", 2, 'str', 'spaces'),
-    ("23_Ocorrencia", 2, 'str', 'zeros'),
-    ("24_Num_Documento", 10, 'str', 'spaces'),
-    ("25_Data_Vencimento", 6, 'str', 'zeros'),
-    ("26_Valor_Titulo", 13, 'float', 'zeros'),
-    ("27_Banco_Cobranca", 3, 'str', 'zeros'),
-    ("28_Agencia_Deposit", 5, 'str', 'zeros'),
-    ("29_Especie_Titulo", 2, 'str', 'zeros'),
-    ("30_Identificacao", 1, 'str', 'spaces'),
-    ("31_Data_Emissao", 6, 'str', 'zeros'),
-    ("32_Instrucao_1", 2, 'str', 'zeros'),
-    ("33_Instrucao_2", 1, 'str', 'zeros'),
-    ("34_Tipo_Pessoa_Ced", 2, 'str', 'zeros'),
-    ("35_Zeros", 12, 'str', 'spaces'),           
-    ("36_Num_Termo_Cessao", 19, 'str', 'spaces'),
-    ("37_Valor_Aquisicao", 13, 'float', 'zeros'),
-    ("38_Valor_Abatimento", 13, 'float', 'zeros'),
-    ("39_Tipo_Insc_Sacado", 2, 'str', 'zeros'),
-    ("40_Insc_Sacado", 14, 'str', 'zeros'),
-    ("41_Nome_Sacado", 40, 'str', 'spaces'),
-    ("42_Endereco_Sacado", 40, 'str', 'spaces'),
-    ("43_Num_NF_Duplicata", 9, 'str', 'spaces'), 
-    ("44_Serie_NF", 3, 'str', 'spaces'),
-    ("45_CEP_Sacado", 8, 'str', 'zeros'),
-    ("46_Cedente", 60, 'str', 'spaces'),
-    ("47_Chave_NF", 44, 'str', 'spaces'),
-    ("48_Seq_Registro", 6, 'seq', 'zeros')
+    ("01_ID_Registro", 1, 'str', 'spaces', True),
+    ("02_Debito_Automatico", 19, 'str', 'spaces', False),
+    ("03_Coobrigacao", 2, 'str', 'zeros', True),
+    ("04_Caract_Especial", 2, 'str', 'zeros', False),
+    ("05_Modalidade", 4, 'str', 'zeros', True),
+    ("06_Natureza", 2, 'str', 'zeros', False),
+    ("07_Origem_Recurso", 4, 'str', 'zeros', False),
+    ("08_Classe_Risco", 2, 'str', 'spaces', False),
+    ("09_Zeros", 1, 'str', 'zeros', False),
+    ("10_Num_Controle", 25, 'str', 'spaces', True),
+    ("11_Num_Banco", 3, 'str', 'zeros', False),
+    ("12_Zeros", 5, 'str', 'zeros', False),
+    ("13_ID_Titulo_Banco", 11, 'str', 'spaces', False),
+    ("14_Digito_Nosso_Num", 1, 'str', 'spaces', False),
+    ("15_Valor_Pago", 10, 'float', 'zeros', False),
+    ("16_Condicao_Papeleta", 1, 'str', 'spaces', False),
+    ("17_Emite_Papeleta", 1, 'str', 'spaces', False),
+    ("18_Data_Liquidacao", 6, 'str', 'zeros', True),
+    ("19_ID_Operacao_Banco", 4, 'str', 'spaces', False),
+    ("20_Ind_Rateio", 1, 'str', 'spaces', False),
+    ("21_End_Aviso_Debito", 1, 'str', 'zeros', False),
+    ("22_Branco", 2, 'str', 'spaces', False),
+    ("23_Ocorrencia", 2, 'str', 'zeros', True),
+    ("24_Num_Documento", 10, 'str', 'spaces', True),
+    ("25_Data_Vencimento", 6, 'str', 'zeros', True),
+    ("26_Valor_Titulo", 13, 'float', 'zeros', True),
+    ("27_Banco_Cobranca", 3, 'str', 'zeros', False),
+    ("28_Agencia_Deposit", 5, 'str', 'zeros', False),
+    ("29_Especie_Titulo", 2, 'str', 'zeros', True),
+    ("30_Identificacao", 1, 'str', 'spaces', False),
+    ("31_Data_Emissao", 6, 'str', 'zeros', True),
+    ("32_Instrucao_1", 2, 'str', 'zeros', True),
+    ("33_Instrucao_2", 1, 'str', 'zeros', True),
+    ("34_Tipo_Pessoa_Ced", 2, 'str', 'zeros', True),
+    ("35_Zeros", 12, 'str', 'spaces', False),
+    ("36_Num_Termo_Cessao", 19, 'str', 'spaces', True),
+    ("37_Valor_Aquisicao", 13, 'float', 'zeros', True),
+    ("38_Valor_Abatimento", 13, 'float', 'zeros', False),
+    ("39_Tipo_Insc_Sacado", 2, 'str', 'zeros', True),
+    ("40_Insc_Sacado", 14, 'str', 'zeros', True),
+    ("41_Nome_Sacado", 40, 'str', 'spaces', True),
+    ("42_Endereco_Sacado", 40, 'str', 'spaces', False),
+    ("43_Num_NF_Duplicata", 9, 'str', 'spaces', False),
+    ("44_Serie_NF", 3, 'str', 'spaces', False),
+    ("45_CEP_Sacado", 8, 'str', 'zeros', False),
+    ("46_Nome_Cedente", 46, 'str', 'spaces', True),
+    ("47_CNPJ_Cedente", 14, 'str', 'zeros', True),
+    ("48_Chave_NF", 44, 'str', 'spaces', False),
+    ("49_Seq_Registro", 6, 'seq', 'zeros', False)
 ]
 
 # ==============================================================================
-# FUNÇÕES AUXILIARES DE FORMATAÇÃO 
+# FUNÇÕES DE FORMATAÇÃO E EXCEL
 # ==============================================================================
 def str_para_valor(texto):
     texto = texto.strip()
@@ -84,31 +82,42 @@ def str_para_valor(texto):
 
 def processar_string_cnab(valor, tamanho, alinhamento):
     val = str(valor).strip()
-    if val in ('nan', 'None'):
-        val = ''
-    if val.endswith('.0'): 
-        val = val[:-2]
-        
-    if alinhamento == 'zeros':
-        return val.zfill(tamanho)[:tamanho]
-    else:
-        # Ajuste: Coloca espaços à esquerda, empurrando o texto para a direita
-        return val.rjust(tamanho)[:tamanho]
+    if val in ('nan', 'None'): val = ''
+    if val.endswith('.0'): val = val[:-2]
+    # Se zeros, preenche a esquerda. Se spaces, empurra para a direita (rjust)
+    return val.zfill(tamanho)[:tamanho] if alinhamento == 'zeros' else val.rjust(tamanho)[:tamanho]
 
 def processar_float_cnab(valor, tamanho):
     val = str(valor).strip()
-    if val in ('nan', 'None', ''):
-        v_float = 0.0
-    else:
-        try:
-            v_float = float(val)
-        except:
-            v_float = 0.0
-    val_limpo = f"{v_float:.2f}".replace(".", "").replace(",", "")
-    return val_limpo.zfill(tamanho)[:tamanho]
+    v_float = float(val) if val not in ('nan', 'None', '') else 0.0
+    return f"{v_float:.2f}".replace(".", "").replace(",", "").zfill(tamanho)[:tamanho]
+
+def salvar_excel_formatado(df, sheet_name='Titulos'):
+    buffer = io.BytesIO()
+    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+        df.to_excel(writer, sheet_name=sheet_name, index=False)
+        workbook = writer.book
+        worksheet = writer.sheets[sheet_name]
+        
+        # Formatos para blindar contra Notação Científica e cortar Zeros
+        fmt_texto = workbook.add_format({'num_format': '@'})
+        fmt_amarelo = workbook.add_format({'bg_color': '#FFFF99', 'num_format': '@', 'border': 1})
+        fmt_header = workbook.add_format({'bold': True, 'border': 1})
+
+        # Aplica a largura e formatação coluna por coluna
+        for col_num, (col_nome, _, _, _, highlight) in enumerate(LAYOUT_444):
+            formato = fmt_amarelo if highlight else fmt_texto
+            worksheet.set_column(col_num, col_num, 20, formato)
+            
+            # Reescreve o cabeçalho para garantir que a cor também pegue na primeira linha
+            worksheet.write(0, col_num, col_nome, fmt_header)
+            if highlight:
+                worksheet.write(0, col_num, col_nome, workbook.add_format({'bold': True, 'bg_color': '#FFFF99', 'border': 1}))
+                
+    return buffer.getvalue()
 
 # ==============================================================================
-# MÓDULO 1: VALIDADOR CNAB 
+# MÓDULO 1: VALIDADOR CNAB
 # ==============================================================================
 if opcao_menu == "📊 1. Validador CNAB":
     st.title("📊 Validador de Arquivos CNAB 444")
@@ -164,13 +173,12 @@ if opcao_menu == "📊 1. Validador CNAB":
                                file_name=f"Validacao_{arquivo_upado.name}.xlsx", type="primary")
 
 # ==============================================================================
-# MÓDULO 2: LEITOR CNAB 
+# MÓDULO 2: LEITOR CNAB
 # ==============================================================================
 elif opcao_menu == "🔍 2. Leitor CNAB":
     st.title("🔍 Leitor e Extrator de CNAB 444")
-    st.markdown("Transforma qualquer arquivo texto de remessa ou retorno em uma planilha de Excel com 48 colunas.")
-    
-    arquivo_upado = st.file_uploader("Faça o upload do arquivo CNAB (.REM / .TXT)", type=["rem", "txt", "REM", "TXT"])
+    st.markdown("Transforma qualquer arquivo texto de remessa ou retorno em uma planilha de Excel com 49 colunas.")
+    arquivo_upado = st.file_uploader("Upload do CNAB (.REM / .TXT)", type=["rem", "txt", "REM", "TXT"])
     
     if arquivo_upado is not None:
         linhas = arquivo_upado.getvalue().decode("utf-8", errors="ignore").splitlines()
@@ -181,79 +189,59 @@ elif opcao_menu == "🔍 2. Leitor CNAB":
             if not linha.strip(): continue
             linha = linha.ljust(444)
             
-            if linha[0] == '1': # Somente linhas de detalhe
+            if linha[0] == '1': 
                 titulo_dict = {}
                 pos_atual = 0
-                
-                for col_nome, tamanho, tipo, alinhamento in LAYOUT_444:
+                for col_nome, tamanho, tipo, alinhamento, _ in LAYOUT_444:
                     valor_bruto = linha[pos_atual : pos_atual + tamanho]
-                    
                     if tipo == 'float':
                         try:
-                            # Converte de volta de string sem vírgula para moeda real (ex: 000000015050 -> 150.50)
                             valor_num = float(valor_bruto) / 100
                         except:
                             valor_num = 0.0
                         titulo_dict[col_nome] = valor_num
                     else:
                         valor_limpo = valor_bruto.strip()
-                        
-                        # Injetar DD/MM/AA em campos de Data
                         if "Data" in col_nome and len(valor_limpo) == 6 and valor_limpo.isdigit() and valor_limpo != "000000":
                             valor_limpo = f"{valor_limpo[0:2]}/{valor_limpo[2:4]}/{valor_limpo[4:6]}"
-                            
                         titulo_dict[col_nome] = valor_limpo
-                        
                     pos_atual += tamanho
-                    
                 titulos_extraidos.append(titulo_dict)
             barra_progresso.progress((num_linha + 1) / len(linhas))
             
         if titulos_extraidos:
             df_leitor = pd.DataFrame(titulos_extraidos)
-            st.success(f"✅ Arquivo lido perfeitamente! {len(df_leitor)} títulos foram extraídos para a planilha.")
-            st.dataframe(df_leitor.head(), use_container_width=True)
+            st.success(f"✅ Arquivo lido com sucesso! {len(df_leitor)} títulos extraídos.")
+            st.dataframe(df_leitor.head())
             
-            buffer = io.BytesIO()
-            with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
-                df_leitor.to_excel(writer, sheet_name='Titulos', index=False)
-                
-                # Proteção para o Excel não cortar zeros nem usar notação científica
-                workbook = writer.book
-                worksheet = writer.sheets['Titulos']
-                formato_texto = workbook.add_format({'num_format': '@'})
-                worksheet.set_column('A:AZ', None, formato_texto)
-                
+            excel_data = salvar_excel_formatado(df_leitor, "Titulos")
             st.download_button(
-                label="📥 Baixar Planilha Completa (48 Colunas)",
-                data=buffer.getvalue(),
+                label="📥 Baixar Planilha Completa (49 Colunas)",
+                data=excel_data,
                 file_name=f"Extraido_{arquivo_upado.name}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 type="primary"
             )
         else:
-            st.warning("⚠️ Nenhum registro de título (linha iniciada com '1') encontrado neste arquivo.")
+            st.warning("⚠️ Nenhum registro de título (linha 1) encontrado neste arquivo.")
 
 # ==============================================================================
-# MÓDULO 3: GERADOR CNAB 
+# MÓDULO 3: GERADOR CNAB
 # ==============================================================================
 elif opcao_menu == "⚙️ 3. Gerador CNAB":
     st.title("⚙️ Gerador de Remessa CNAB 444")
     
     with st.expander("🛠️ 1. Configurações do Cabeçalho (Header - Linha 0)", expanded=True):
-        st.markdown("Preencha ou altere os parâmetros para a montagem do cabeçalho da remessa.")
-        
+        st.markdown("Preencha ou altere os parâmetros para a montagem do cabeçalho.")
         col_h1, col_h2, col_h3 = st.columns(3)
         with col_h1:
             cod_originador = st.text_input("Código do Originador (CNPJ)*", placeholder="Ex: 00000000000100", max_chars=20)
             literal_remessa = st.text_input("Literal Remessa", value="REMESSA", max_chars=7)
-            cod_banco = st.text_input("Código do Banco", placeholder="Ex: 000", max_chars=3)
-            
+            cod_banco = st.text_input("Código do Banco", value="439", max_chars=3)
         with col_h2:
             nome_originador = st.text_input("Nome do Originador*", max_chars=30)
             cod_servico = st.text_input("Código do Serviço", value="01", max_chars=2)
-            nome_banco = st.text_input("Nome do Banco", max_chars=15)
-            
+            nome_banco = st.text_input("Nome do Banco", value="ID CTVM", max_chars=15)
         with col_h3:
             data_geracao = st.text_input("Data de Geração (DDMMAA)", value=datetime.now().strftime("%d%m%y"), max_chars=6)
             id_sistema = st.text_input("ID do Sistema", value="MX0000001", max_chars=9)
@@ -262,26 +250,19 @@ elif opcao_menu == "⚙️ 3. Gerador CNAB":
     
     st.markdown("---")
     
+    # Template para Download
     df_template = pd.DataFrame(columns=[col[0] for col in LAYOUT_444])
-    buffer_tpl = io.BytesIO()
-    with pd.ExcelWriter(buffer_tpl, engine='xlsxwriter') as writer:
-        df_template.to_excel(writer, index=False)
-        
-        # Proteção para o Template também não cortar zeros na hora da digitação
-        workbook = writer.book
-        worksheet = writer.sheets['Sheet1']
-        formato_texto = workbook.add_format({'num_format': '@'})
-        worksheet.set_column('A:AZ', None, formato_texto)
+    excel_template = salvar_excel_formatado(df_template, "Template")
     
     st.subheader("2. Títulos (Detalhe)")
     st.download_button(
-        label="📥 Baixar Template Padrão (48 Colunas)",
-        data=buffer_tpl.getvalue(),
-        file_name="Template_48_Colunas_CNAB.xlsx"
+        label="📥 Baixar Template Padrão (Amarelo)",
+        data=excel_template,
+        file_name="Template_49_Colunas_CNAB.xlsx",
+        help="Baixe este template. As colunas em amarelo são obrigatórias/recomendadas."
     )
     
-    arquivo_planilha = st.file_uploader("Faça o upload da Planilha Preenchida (.xlsx ou .csv)", type=["xlsx", "xls", "csv"])
-    
+    arquivo_planilha = st.file_uploader("Upload da Planilha Preenchida (.xlsx ou .csv)", type=["xlsx", "xls", "csv"])
     if arquivo_planilha is not None:
         try:
             if arquivo_planilha.name.endswith('.csv'):
@@ -290,7 +271,6 @@ elif opcao_menu == "⚙️ 3. Gerador CNAB":
                 df_entrada = pd.read_excel(arquivo_planilha, dtype=str)
                 
             df_entrada = df_entrada.fillna("")
-                
             st.success(f"Planilha carregada! {len(df_entrada)} títulos encontrados.")
             st.dataframe(df_entrada.head())
             
@@ -301,8 +281,7 @@ elif opcao_menu == "⚙️ 3. Gerador CNAB":
                     linhas_cnab = []
                     
                     # 1. HEADER (Linha 0)
-                    header = "0" 
-                    header += "1" 
+                    header = "0" + "1" 
                     header += processar_string_cnab(literal_remessa.upper(), 7, 'spaces')
                     header += processar_string_cnab(cod_servico, 2, 'zeros')
                     header += processar_string_cnab(literal_servico.upper(), 15, 'spaces')
@@ -311,10 +290,8 @@ elif opcao_menu == "⚙️ 3. Gerador CNAB":
                     header += processar_string_cnab(cod_banco, 3, 'zeros')
                     header += processar_string_cnab(nome_banco.upper(), 15, 'spaces')
                     header += processar_string_cnab(data_geracao, 6, 'zeros')
-                    
                     header += " " * 8  
                     header += processar_string_cnab(id_sistema, 9, 'spaces')
-                    
                     header = header.ljust(438, " ") 
                     header += processar_string_cnab(seq_arquivo, 6, 'zeros')
                     linhas_cnab.append(header)
@@ -323,13 +300,11 @@ elif opcao_menu == "⚙️ 3. Gerador CNAB":
                     seq_linha = 2
                     for index, row in df_entrada.iterrows():
                         linha_detalhe = ""
-                        for col_nome, tamanho, tipo, alinhamento in LAYOUT_444:
+                        for col_nome, tamanho, tipo, alinhamento, _ in LAYOUT_444:
                             valor_celula = str(row.get(col_nome, ''))
-                            
-                            # Remove barras se for um campo de Data antes de gerar o CNAB
                             if "Data" in col_nome:
                                 valor_celula = valor_celula.replace("/", "").replace("-", "")
-                                
+                            
                             if tipo == 'seq':
                                 linha_detalhe += str(seq_linha).zfill(tamanho)
                             elif tipo == 'float':
@@ -352,6 +327,5 @@ elif opcao_menu == "⚙️ 3. Gerador CNAB":
                         mime="text/plain",
                         type="primary"
                     )
-                    
         except Exception as e:
             st.error(f"Erro ao processar a folha de cálculo: {e}")
