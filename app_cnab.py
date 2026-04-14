@@ -92,7 +92,8 @@ def processar_string_cnab(valor, tamanho, alinhamento):
     if alinhamento == 'zeros':
         return val.zfill(tamanho)[:tamanho]
     else:
-        return val.ljust(tamanho)[:tamanho]
+        # Ajuste: Coloca espaços à esquerda, empurrando o texto para a direita
+        return val.rjust(tamanho)[:tamanho]
 
 def processar_float_cnab(valor, tamanho):
     val = str(valor).strip()
@@ -163,7 +164,7 @@ if opcao_menu == "📊 1. Validador CNAB":
                                file_name=f"Validacao_{arquivo_upado.name}.xlsx", type="primary")
 
 # ==============================================================================
-# MÓDULO 2: LEITOR CNAB (NOVO)
+# MÓDULO 2: LEITOR CNAB 
 # ==============================================================================
 elif opcao_menu == "🔍 2. Leitor CNAB":
     st.title("🔍 Leitor e Extrator de CNAB 444")
@@ -195,8 +196,13 @@ elif opcao_menu == "🔍 2. Leitor CNAB":
                             valor_num = 0.0
                         titulo_dict[col_nome] = valor_num
                     else:
-                        # Limpa espaços em branco nas pontas para a planilha ficar limpa
-                        titulo_dict[col_nome] = valor_bruto.strip()
+                        valor_limpo = valor_bruto.strip()
+                        
+                        # Injetar DD/MM/AA em campos de Data
+                        if "Data" in col_nome and len(valor_limpo) == 6 and valor_limpo.isdigit() and valor_limpo != "000000":
+                            valor_limpo = f"{valor_limpo[0:2]}/{valor_limpo[2:4]}/{valor_limpo[4:6]}"
+                            
+                        titulo_dict[col_nome] = valor_limpo
                         
                     pos_atual += tamanho
                     
@@ -211,6 +217,12 @@ elif opcao_menu == "🔍 2. Leitor CNAB":
             buffer = io.BytesIO()
             with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
                 df_leitor.to_excel(writer, sheet_name='Titulos', index=False)
+                
+                # Proteção para o Excel não cortar zeros nem usar notação científica
+                workbook = writer.book
+                worksheet = writer.sheets['Titulos']
+                formato_texto = workbook.add_format({'num_format': '@'})
+                worksheet.set_column('A:AZ', None, formato_texto)
                 
             st.download_button(
                 label="📥 Baixar Planilha Completa (48 Colunas)",
@@ -254,6 +266,12 @@ elif opcao_menu == "⚙️ 3. Gerador CNAB":
     buffer_tpl = io.BytesIO()
     with pd.ExcelWriter(buffer_tpl, engine='xlsxwriter') as writer:
         df_template.to_excel(writer, index=False)
+        
+        # Proteção para o Template também não cortar zeros na hora da digitação
+        workbook = writer.book
+        worksheet = writer.sheets['Sheet1']
+        formato_texto = workbook.add_format({'num_format': '@'})
+        worksheet.set_column('A:AZ', None, formato_texto)
     
     st.subheader("2. Títulos (Detalhe)")
     st.download_button(
@@ -306,7 +324,12 @@ elif opcao_menu == "⚙️ 3. Gerador CNAB":
                     for index, row in df_entrada.iterrows():
                         linha_detalhe = ""
                         for col_nome, tamanho, tipo, alinhamento in LAYOUT_444:
-                            valor_celula = row.get(col_nome, '')
+                            valor_celula = str(row.get(col_nome, ''))
+                            
+                            # Remove barras se for um campo de Data antes de gerar o CNAB
+                            if "Data" in col_nome:
+                                valor_celula = valor_celula.replace("/", "").replace("-", "")
+                                
                             if tipo == 'seq':
                                 linha_detalhe += str(seq_linha).zfill(tamanho)
                             elif tipo == 'float':
