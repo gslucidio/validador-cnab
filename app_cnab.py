@@ -235,11 +235,11 @@ elif opcao_menu == "⚙️ 3. Gerador CNAB":
         with col_h1:
             cod_originador = st.text_input("Código do Originador (CNPJ)*", placeholder="Ex: 00000000000100", max_chars=20)
             literal_remessa = st.text_input("Literal Remessa", value="REMESSA", max_chars=7)
-            cod_banco = st.text_input("Código do Banco", value="439", max_chars=3)
+            cod_banco = st.text_input("Código do Banco", placeholder="439", max_chars=3)
         with col_h2:
             nome_originador = st.text_input("Nome do Originador*", max_chars=30)
             cod_servico = st.text_input("Código do Serviço", value="01", max_chars=2)
-            nome_banco = st.text_input("Nome do Banco", value="ID CTVM", max_chars=15)
+            nome_banco = st.text_input("Nome do Banco", placeholder="ID CTVM SA", max_chars=15)
         with col_h3:
             data_geracao = st.text_input("Data de Geração (DDMMAA)", value=datetime.now().strftime("%d%m%y"), max_chars=6)
             id_sistema = st.text_input("ID do Sistema", value="MX0000001", max_chars=9)
@@ -253,7 +253,7 @@ elif opcao_menu == "⚙️ 3. Gerador CNAB":
     
     st.subheader("2. Títulos (Detalhe)")
     st.download_button(
-        label="📥 Baixar Template Padrão (Amarelo)",
+        label="📥 Baixar Template Padrão",
         data=excel_template,
         file_name="Template_49_Colunas_CNAB.xlsx",
         help="Baixe este template. As colunas a amarelo são obrigatórias/recomendadas."
