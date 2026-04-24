@@ -17,9 +17,8 @@ st.sidebar.markdown("---")
 st.sidebar.info("Sistema de processamento posicional padrão CNAB 444.")
 
 # ==============================================================================
-# DICIONÁRIO DE LAYOUT 444 (Com Coluna do Cedente Dividida)
+# DICIONÁRIO DE LAYOUT 444 (Atualizado e Ajustado)
 # ==============================================================================
-# Ordem: (Nome da Coluna, Tamanho, Tipo, Alinhamento, Highlight_Amarelo?)
 LAYOUT_444 = [
     ("01_ID_Registro", 1, 'str', 'ljust', True),
     ("02_Debito_Automatico", 19, 'str', 'rjust', False),
@@ -30,12 +29,12 @@ LAYOUT_444 = [
     ("07_Origem_Recurso", 4, 'str', 'zeros', False),
     ("08_Classe_Risco", 2, 'str', 'rjust', False),
     ("09_Zeros", 1, 'str', 'zeros', False),
-    ("10_Num_Controle", 25, 'str', 'ljust', True),
+    ("10_Num_Controle", 25, 'str', 'ljust', True),       # Ajustado para ljust
     ("11_Num_Banco", 3, 'str', 'zeros', False),
     ("12_Zeros", 5, 'str', 'zeros', False),
     ("13_ID_Titulo_Banco", 11, 'str', 'rjust', False),
     ("14_Digito_Nosso_Num", 1, 'str', 'rjust', False),
-    ("15_Valor_Pago", 10, 'float', 'zeros', True),
+    ("15_Valor_Pago", 10, 'float', 'zeros', False),
     ("16_Condicao_Papeleta", 1, 'str', 'rjust', False),
     ("17_Emite_Papeleta", 1, 'str', 'rjust', False),
     ("18_Data_Liquidacao", 6, 'str', 'zeros', True),
@@ -55,8 +54,8 @@ LAYOUT_444 = [
     ("32_Instrucao_1", 2, 'str', 'zeros', True),
     ("33_Instrucao_2", 1, 'str', 'zeros', True),
     ("34_Tipo_Pessoa_Ced", 2, 'str', 'zeros', True),
-    ("35_Zeros", 12, 'str', 'zeros', False),
-    ("36_Num_Termo_Cessao", 19, 'str', 'ljust', True),
+    ("35_Zeros", 12, 'str', 'zeros', False),             # Ajustado para zeros
+    ("36_Num_Termo_Cessao", 19, 'str', 'ljust', True),   # Ajustado para ljust
     ("37_Valor_Aquisicao", 13, 'float', 'zeros', True),
     ("38_Valor_Abatimento", 13, 'float', 'zeros', False),
     ("39_Tipo_Insc_Sacado", 2, 'str', 'zeros', True),
@@ -85,12 +84,9 @@ def processar_string_cnab(valor, tamanho, alinhamento):
     if val in ('nan', 'None'): val = ''
     if val.endswith('.0'): val = val[:-2]
     
-    if alinhamento == 'zeros':
-        return val.zfill(tamanho)[:tamanho]
-    elif alinhamento == 'ljust':
-        return val.ljust(tamanho)[:tamanho]
-    else: # rjust
-        return val.rjust(tamanho)[:tamanho]
+    if alinhamento == 'zeros': return val.zfill(tamanho)[:tamanho]
+    elif alinhamento == 'ljust': return val.ljust(tamanho)[:tamanho]
+    else: return val.rjust(tamanho)[:tamanho]
 
 def processar_float_cnab(valor, tamanho):
     val = str(valor).strip()
@@ -116,7 +112,11 @@ def salvar_excel_formatado(df, sheet_name='Titulos'):
         fmt_header_prior = workbook.add_format({'bold': True, 'bg_color': '#FFFF99', 'border': 1, 'num_format': '@'})
         fmt_header_std = workbook.add_format({'bold': True, 'border': 1, 'num_format': '@'})
 
-        for col_num, (col_nome, _, _, _, highlight) in enumerate(LAYOUT_444):
+        destaques = {col[0]: col[4] for col in LAYOUT_444}
+        destaques["00_Arquivo_Origem"] = True # Destaca a nova coluna
+        
+        for col_num, col_nome in enumerate(df.columns):
+            highlight = destaques.get(col_nome, False)
             worksheet.set_column(col_num, col_num, 20, fmt_texto)
             worksheet.write(0, col_num, col_nome, fmt_header_prior if highlight else fmt_header_std)
             
@@ -179,67 +179,72 @@ if opcao_menu == "📊 1. Validador CNAB":
                                file_name=f"Validacao_{arquivo_upado.name}.xlsx", type="primary")
 
 elif opcao_menu == "🔍 2. Leitor CNAB":
-    st.title("🔍 Leitor e Extrator de CNAB 444")
-    st.markdown("Transforma qualquer arquivo texto de remessa ou retorno numa folha de Excel com 49 colunas.")
-    arquivo_upado = st.file_uploader("Upload do CNAB (.REM / .TXT)", type=["rem", "txt", "REM", "TXT"])
+    st.title("🔍 Leitor Múltiplo e Extrator de CNAB 444")
+    st.markdown("Transforma um ou vários arquivos de remessa/retorno numa folha Excel consolidada com 50 colunas.")
     
-    if arquivo_upado is not None:
-        linhas = arquivo_upado.getvalue().decode("utf-8", errors="ignore").splitlines()
+    arquivos_upados = st.file_uploader("Upload dos CNABs (.REM / .TXT)", type=["rem", "txt", "REM", "TXT"], accept_multiple_files=True)
+    
+    if arquivos_upados:
         titulos_extraidos = []
         barra_progresso = st.progress(0)
         
-        for num_linha, linha in enumerate(linhas):
-            if not linha.strip() or linha[0] != '1': continue
-            linha = linha.ljust(444)
-            titulo_dict = {}
-            pos_atual = 0
-            for col_nome, tamanho, tipo, alinhamento, _ in LAYOUT_444:
-                valor_bruto = linha[pos_atual : pos_atual + tamanho]
-                if tipo == 'float':
-                    try:
-                        valor_num = float(valor_bruto) / 100
-                    except ValueError:
-                        valor_num = 0.0
-                    titulo_dict[col_nome] = valor_num
-                else:
-                    valor_limpo = valor_bruto.strip()
-                    if "Data" in col_nome and len(valor_limpo) == 6 and valor_limpo.isdigit() and valor_limpo != "000000":
-                        valor_limpo = f"{valor_limpo[0:2]}/{valor_limpo[2:4]}/{valor_limpo[4:6]}"
-                    titulo_dict[col_nome] = valor_limpo
-                pos_atual += tamanho
-            titulos_extraidos.append(titulo_dict)
-            barra_progresso.progress((num_linha + 1) / len(linhas))
+        for index_arq, arquivo_upado in enumerate(arquivos_upados):
+            linhas = arquivo_upado.getvalue().decode("utf-8", errors="ignore").splitlines()
+            
+            for linha in linhas:
+                if not linha.strip() or linha[0] != '1': continue
+                linha = linha.ljust(444)
+                
+                titulo_dict = {"00_Arquivo_Origem": arquivo_upado.name}
+                pos_atual = 0
+                
+                for col_nome, tamanho, tipo, alinhamento, _ in LAYOUT_444:
+                    valor_bruto = linha[pos_atual : pos_atual + tamanho]
+                    if tipo == 'float':
+                        try:
+                            valor_num = float(valor_bruto) / 100
+                        except ValueError:
+                            valor_num = 0.0
+                        titulo_dict[col_nome] = valor_num
+                    else:
+                        valor_limpo = valor_bruto.strip()
+                        if "Data" in col_nome and len(valor_limpo) == 6 and valor_limpo.isdigit() and valor_limpo != "000000":
+                            valor_limpo = f"{valor_limpo[0:2]}/{valor_limpo[2:4]}/{valor_limpo[4:6]}"
+                        titulo_dict[col_nome] = valor_limpo
+                    pos_atual += tamanho
+                titulos_extraidos.append(titulo_dict)
+            
+            barra_progresso.progress((index_arq + 1) / len(arquivos_upados))
             
         if titulos_extraidos:
             df_leitor = pd.DataFrame(titulos_extraidos)
-            st.success(f"✅ Ficheiro lido com sucesso! {len(df_leitor)} títulos extraídos.")
+            st.success(f"✅ {len(arquivos_upados)} ficheiro(s) lido(s) com sucesso! {len(df_leitor)} títulos extraídos.")
             st.dataframe(df_leitor.head())
             
-            excel_data = salvar_excel_formatado(df_leitor, "Titulos")
+            excel_data = salvar_excel_formatado(df_leitor, "Titulos_Consolidados")
             st.download_button(
-                label="📥 Baixar Folha Completa (49 Colunas)",
+                label="📥 Baixar Folha Consolidada (50 Colunas)",
                 data=excel_data,
-                file_name=f"Extraido_{arquivo_upado.name}.xlsx",
+                file_name=f"Leitura_Consolidada_{datetime.now().strftime('%d%m%y_%H%M')}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 type="primary"
             )
         else:
-            st.warning("⚠️ Nenhum registo de título (linha 1) encontrado neste ficheiro.")
+            st.warning("⚠️ Nenhum registo de título (linha 1) encontrado nos ficheiros.")
 
 elif opcao_menu == "⚙️ 3. Gerador CNAB":
     st.title("⚙️ Gerador de Remessa CNAB 444")
     
     with st.expander("🛠️ 1. Configurações do Cabeçalho (Header - Linha 0)", expanded=True):
-        st.markdown("Preencha ou altere os parâmetros para a montagem do cabeçalho.")
         col_h1, col_h2, col_h3 = st.columns(3)
         with col_h1:
             cod_originador = st.text_input("Código do Originador (CNPJ)*", placeholder="Ex: 00000000000100", max_chars=20)
             literal_remessa = st.text_input("Literal Remessa", value="REMESSA", max_chars=7)
-            cod_banco = st.text_input("Código do Banco", placeholder="439", max_chars=3)
+            cod_banco = st.text_input("Código do Banco", value="439", max_chars=3)
         with col_h2:
             nome_originador = st.text_input("Nome do Originador*", max_chars=30)
             cod_servico = st.text_input("Código do Serviço", value="01", max_chars=2)
-            nome_banco = st.text_input("Nome do Banco", placeholder="ID CTVM SA", max_chars=15)
+            nome_banco = st.text_input("Nome do Banco", value="ID CTVM", max_chars=15)
         with col_h3:
             data_geracao = st.text_input("Data de Geração (DDMMAA)", value=datetime.now().strftime("%d%m%y"), max_chars=6)
             id_sistema = st.text_input("ID do Sistema", value="MX0000001", max_chars=9)
@@ -253,10 +258,9 @@ elif opcao_menu == "⚙️ 3. Gerador CNAB":
     
     st.subheader("2. Títulos (Detalhe)")
     st.download_button(
-        label="📥 Baixar Template Padrão",
+        label="📥 Baixar Template Padrão (Amarelo)",
         data=excel_template,
-        file_name="Template_49_Colunas_CNAB.xlsx",
-        help="Baixe este template. As colunas a amarelo são obrigatórias/recomendadas."
+        file_name="Template_49_Colunas_CNAB.xlsx"
     )
     
     arquivo_planilha = st.file_uploader("Upload da Folha Preenchida (.xlsx ou .csv)", type=["xlsx", "xls", "csv"])
