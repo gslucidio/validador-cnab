@@ -45,7 +45,7 @@ LAYOUT_444 = [
     ("23_Ocorrencia", 2, 'str', 'zeros', True),
     ("24_Num_Documento", 10, 'str', 'rjust', True),
     ("25_Data_Vencimento", 6, 'str', 'zeros', True),
-    ("26_Valor_Titulo", 13, 'float', 'zeros', True),
+    ("26_Valor_Titulo (Face)", 13, 'float', 'zeros', True),
     ("27_Banco_Cobranca", 3, 'str', 'zeros', False),
     ("28_Agencia_Deposit", 5, 'str', 'zeros', False),
     ("29_Especie_Titulo", 2, 'str', 'zeros', True),
@@ -56,10 +56,10 @@ LAYOUT_444 = [
     ("34_Tipo_Pessoa_Ced", 2, 'str', 'zeros', True),
     ("35_Zeros", 12, 'str', 'zeros', False),             # Ajustado para zeros
     ("36_Num_Termo_Cessao", 19, 'str', 'ljust', True),   # Ajustado para ljust
-    ("37_Valor_Aquisicao", 13, 'float', 'zeros', True),
+    ("37_Valor_Parcela", 13, 'float', 'zeros', True),
     ("38_Valor_Abatimento", 13, 'float', 'zeros', False),
     ("39_Tipo_Insc_Sacado", 2, 'str', 'zeros', True),
-    ("40_Insc_Sacado", 14, 'str', 'zeros', True),
+    ("40_Num_Insc_Sacado", 14, 'str', 'zeros', True),
     ("41_Nome_Sacado", 40, 'str', 'ljust', True),
     ("42_Endereco_Sacado", 40, 'str', 'ljust', False),
     ("43_Num_NF_Duplicata", 9, 'str', 'rjust', False),
