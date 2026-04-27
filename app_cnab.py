@@ -200,7 +200,7 @@ if opcao_menu == "📊 1. Validador CNAB":
                     total_titulo, 
                     total_pago, 
                     total_parcela_aquisicao, 
-                    total_titulo - total_parcela_aquisicaoo, 
+                    total_titulo - total_parcela_aquisicao, 
                     total_titulo - total_pago, 
                     (df_detalhe['Validacao (Titulo >= Aquisicao)'] == 'OK').sum(), 
                     (df_detalhe['Validacao (Titulo >= Aquisicao)'] == 'NOK').sum()
