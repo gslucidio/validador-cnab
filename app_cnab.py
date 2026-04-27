@@ -34,7 +34,7 @@ LAYOUT_444 = [
     ("12_Zeros", 5, 'str', 'zeros', False),
     ("13_ID_Titulo_Banco", 11, 'str', 'rjust', False),
     ("14_Digito_Nosso_Num", 1, 'str', 'rjust', False),
-    ("15_Valor_Pago", 10, 'float', 'zeros', False),
+    ("15_Valor_Pago", 10, 'float', 'zeros', True),
     ("16_Condicao_Papeleta", 1, 'str', 'rjust', False),
     ("17_Emite_Papeleta", 1, 'str', 'rjust', False),
     ("18_Data_Liquidacao", 6, 'str', 'zeros', True),
@@ -108,16 +108,28 @@ def salvar_excel_formatado(df, sheet_name='Titulos'):
         workbook = writer.book
         worksheet = writer.sheets[sheet_name]
         
-        fmt_texto = workbook.add_format({'num_format': '@'})
+        # Formatos: Texto simples e Amarelo para a coluna toda
+        fmt_texto = workbook.add_format({'num_format': '@', 'border': 1})
+        fmt_amarelo_coluna = workbook.add_format({'bg_color': '#FFFF99', 'num_format': '@', 'border': 1})
+        
+        # Formatos para o Cabeçalho (Negrito + Cor correspondente)
         fmt_header_prior = workbook.add_format({'bold': True, 'bg_color': '#FFFF99', 'border': 1, 'num_format': '@'})
         fmt_header_std = workbook.add_format({'bold': True, 'border': 1, 'num_format': '@'})
 
+        # Mapeamento de quais colunas devem ser destacadas
         destaques = {col[0]: col[4] for col in LAYOUT_444}
-        destaques["00_Arquivo_Origem"] = True # Destaca a nova coluna
+        if "00_Arquivo_Origem" in df.columns:
+            destaques["00_Arquivo_Origem"] = True
         
         for col_num, col_nome in enumerate(df.columns):
             highlight = destaques.get(col_nome, False)
-            worksheet.set_column(col_num, col_num, 20, fmt_texto)
+            
+            # A MUDANÇA ESTÁ AQUI: 
+            # Se a coluna for prioritária, aplicamos o fmt_amarelo_coluna para a COLUNA INTEIRA
+            formato_coluna = fmt_amarelo_coluna if highlight else fmt_texto
+            worksheet.set_column(col_num, col_num, 25, formato_coluna)
+            
+            # Mantemos o cabeçalho em negrito
             worksheet.write(0, col_num, col_nome, fmt_header_prior if highlight else fmt_header_std)
             
     return buffer.getvalue()
