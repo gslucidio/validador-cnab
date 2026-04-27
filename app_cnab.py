@@ -137,9 +137,12 @@ def salvar_excel_formatado(df, sheet_name='Titulos'):
 # ==============================================================================
 # MÓDULOS DO HUB
 # ==============================================================================
+# ==============================================================================
+# MÓDULO 1: VALIDADOR CNAB
+# ==============================================================================
 if opcao_menu == "📊 1. Validador CNAB":
     st.title("📊 Validador de Arquivos CNAB 444")
-    st.markdown("Cruza os valores de **Aquisição vs Nominal** e aponta as divergências do lote.")
+    st.markdown("Cruza os valores de **Aquisição, Nominal e Pago**, apontando as divergências do lote.")
     arquivo_upado = st.file_uploader("Upload do ficheiro (.REM ou .TXT)", type=["rem", "txt", "REM", "TXT"])
 
     if arquivo_upado is not None:
@@ -152,16 +155,25 @@ if opcao_menu == "📊 1. Validador CNAB":
             linha = linha.ljust(444)
             
             if linha[0] == '1': 
-                valor_titulo = str_para_valor(linha[126:139])
-                valor_aquisicao = str_para_valor(linha[192:205])
-                status_validacao = 'NOK' if valor_aquisicao > valor_titulo else 'OK'
+                # Captura os 3 valores principais usando o fatiamento exato do layout
+                valor_pago = str_para_valor(linha[82:92])         # Coluna 15
+                valor_titulo = str_para_valor(linha[126:139])      # Coluna 26
+                valor_parcela_aquisicao = str_para_valor(linha[192:205])   # Coluna 37
+                
+                # Cálculos de Spread
+                spread_parcela_aquisicao = valor_titulo - valor_parcela_aquisicao
+                spread_pago = valor_titulo - valor_pago 
+                
+                status_validacao = 'NOK' if valor_parcela_aquisicao > valor_titulo else 'OK'
                 
                 titulos.append({
                     "Linha": num_linha,
                     "Num_Controle": linha[37:62].strip(),
                     "Valor_Titulo": valor_titulo,
-                    "Valor_Aquisicao": valor_aquisicao,
-                    "Diferenca (Spread)": valor_titulo - valor_aquisicao,
+                    "Valor_Pago": valor_pago,
+                    "Valor_Parcela_Aquisicao": valor_parcela_aquisicao,
+                    "Spread_Parcela_Aquisicao": spread_parcela_aquisicao,
+                    "Spread_Pago": spread_pago,
                     "Validacao (Titulo >= Aquisicao)": status_validacao
                 })
             barra_progresso.progress(num_linha / len(linhas))
@@ -170,16 +182,35 @@ if opcao_menu == "📊 1. Validador CNAB":
         
         if not df_detalhe.empty:
             total_titulo = df_detalhe['Valor_Titulo'].sum()
-            total_aquisicao = df_detalhe['Valor_Aquisicao'].sum()
+            total_pago = df_detalhe['Valor_Pago'].sum()
+            total_parcela_aquisicao = df_detalhe['Valor_Parcela_Aquisicao'].sum()
+            
+            # Atualiza o quadro de resumo
             df_resumo = pd.DataFrame({
-                'Métricas': ['Valor_Titulo Total', 'Valor_Aquisicao Total', 'Spread', 'OK', 'NOK'],
-                'Valores': [total_titulo, total_aquisicao, total_titulo - total_aquisicao, 
-                           (df_detalhe['Validacao (Titulo >= Aquisicao)'] == 'OK').sum(), 
-                           (df_detalhe['Validacao (Titulo >= Aquisicao)'] == 'NOK').sum()]
+                'Métricas': [
+                    'Valor_Titulo Total', 
+                    'Valor_Pago Total', 
+                    'Valor_Parcela_Aquisicao Total', 
+                    'Spread Parcela/Aquisição', 
+                    'Spread Pago Total', 
+                    'Títulos OK', 
+                    'Títulos NOK'
+                ],
+                'Valores': [
+                    total_titulo, 
+                    total_pago, 
+                    total_parcela_aquisicao, 
+                    total_titulo - total_parcela_aquisicaoo, 
+                    total_titulo - total_pago, 
+                    (df_detalhe['Validacao (Titulo >= Aquisicao)'] == 'OK').sum(), 
+                    (df_detalhe['Validacao (Titulo >= Aquisicao)'] == 'NOK').sum()
+                ]
             })
 
             st.success("✅ Ficheiro validado com sucesso!")
-            col1, col2 = st.columns([1, 2])
+            
+            # Ajuste visual das colunas na tela
+            col1, col2 = st.columns([1, 2.5])
             with col1: st.dataframe(df_resumo, use_container_width=True)
             with col2: st.dataframe(df_detalhe, use_container_width=True)
             
