@@ -56,7 +56,7 @@ LAYOUT_444 = [
     ("34_Tipo_Pessoa_Ced", 2, 'str', 'zeros', True),
     ("35_Zeros", 12, 'str', 'zeros', False),             # Ajustado para zeros
     ("36_Num_Termo_Cessao", 19, 'str', 'ljust', True),   # Ajustado para ljust
-    ("37_Valor_Parcela", 13, 'float', 'zeros', True),
+    ("37_Valor_Parcela_Aquisicao", 13, 'float', 'zeros', True),
     ("38_Valor_Abatimento", 13, 'float', 'zeros', False),
     ("39_Tipo_Insc_Sacado", 2, 'str', 'zeros', True),
     ("40_Num_Insc_Sacado", 14, 'str', 'zeros', True),
@@ -250,11 +250,11 @@ elif opcao_menu == "⚙️ 3. Gerador CNAB":
     with st.expander("🛠️ 1. Configurações do Cabeçalho (Header - Linha 0)", expanded=True):
         col_h1, col_h2, col_h3 = st.columns(3)
         with col_h1:
-            cod_originador = st.text_input("Código do Originador (CNPJ)*", placeholder="Ex: 00000000000100", max_chars=20)
+            cod_originador = st.text_input("Código do Originador (CNPJ)*", value="20260463354125000130", max_chars=20)
             literal_remessa = st.text_input("Literal Remessa", value="REMESSA", max_chars=7)
             cod_banco = st.text_input("Código do Banco", value="439", max_chars=3)
         with col_h2:
-            nome_originador = st.text_input("Nome do Originador*", max_chars=30)
+            nome_originador = st.text_input("Nome do Originador*", value="NX CAPITAL FUNDO DE INVESTIMEN", max_chars=30)
             cod_servico = st.text_input("Código do Serviço", value="01", max_chars=2)
             nome_banco = st.text_input("Nome do Banco", value="ID CTVM", max_chars=15)
         with col_h3:
