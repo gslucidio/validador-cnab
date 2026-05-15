@@ -301,7 +301,7 @@ elif opcao_menu == "⚙️ 3. Gerador CNAB":
     
     st.subheader("2. Títulos (Detalhe)")
     st.download_button(
-        label="📥 Baixar Template Padrão (Amarelo)",
+        label="📥 Baixar Template Padrão",
         data=excel_template,
         file_name="Template_49_Colunas_CNAB.xlsx"
     )
@@ -364,10 +364,15 @@ elif opcao_menu == "⚙️ 3. Gerador CNAB":
                     
                     conteudo_final = "\n".join(linhas_cnab)
                     
+                    # --- Pegar o nome do arquivo original ---
+                    # Pega o nome do arquivo upado e remove a extensão (.xlsx ou .csv)
+                    nome_base = arquivo_planilha.name.rsplit('.', 1)[0]
+                    nome_saida = f"{nome_base}.REM"
+                    
                     st.download_button(
                         label="📥 Baixar Ficheiro CNAB (.REM)",
                         data=conteudo_final,
-                        file_name=f"CB{data_geracao}.REM",
+                        file_name=nome_saida,  # Usando a nova variável de nome
                         mime="text/plain",
                         type="primary"
                     )
