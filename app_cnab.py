@@ -251,8 +251,6 @@ elif opcao_menu == "🔍 2. Leitor CNAB":
                         titulo_dict[col_nome] = valor_num
                     else:
                         valor_limpo = valor_bruto.strip()
-                        if "Data" in col_nome and len(valor_limpo) == 6 and valor_limpo.isdigit() and valor_limpo != "000000":
-                            valor_limpo = f"{valor_limpo[0:2]}/{valor_limpo[2:4]}/{valor_limpo[4:6]}"
                         titulo_dict[col_nome] = valor_limpo
                     pos_atual += tamanho
                 titulos_extraidos.append(titulo_dict)
