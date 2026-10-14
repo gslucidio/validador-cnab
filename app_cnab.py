@@ -284,11 +284,11 @@ elif opcao_menu == "⚙️ 3. Gerador CNAB":
         },
         "NX Capital": {
             "codigo": "20260463354125000130",
-            "nome": "NX CAPITAL FUNDO DE INVESTIMENTO EM DIREITOS CREDITÓRIOS NÃO PADRONIZADOS RESP LIMITADA"
+            "nome": "NX CAPITAL FUNDO DE INVESTIMEN"
         },
         "Altiora": {
             "codigo": "20260363457729000101",
-            "nome": "ALTIORA FUNDO DE INVESTIMENTO EM DIREITOS CREDITÓRIOS NÃO PADRONIZADOS RESPONSABILIDADE LIMITADA"
+            "nome": "ALTIORA FUNDO DE INVESTIMENTO "
         }
     }
     
