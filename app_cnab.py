@@ -276,14 +276,38 @@ elif opcao_menu == "🔍 2. Leitor CNAB":
 elif opcao_menu == "⚙️ 3. Gerador CNAB":
     st.title("⚙️ Gerador de Remessa CNAB 444")
     
+    # --- NOVO: DICIONÁRIO DE OPÇÕES PRÉ-PREENCHIDAS ---
+    originadores = {
+        "Outro": {
+            "codigo": "00000000000000000100",
+            "nome": "NOME DO ORIGINADOR"
+        },
+        "NX Capital": {
+            "codigo": "20260463354125000130",
+            "nome": "NX CAPITAL FUNDO DE INVESTIMENTO EM DIREITOS CREDITÓRIOS NÃO PADRONIZADOS RESP LIMITADA"
+        },
+        "Altiora": {
+            "codigo": "20260363457729000101",
+            "nome": "ALTIORA FUNDO DE INVESTIMENTO EM DIREITOS CREDITÓRIOS NÃO PADRONIZADOS RESPONSABILIDADE LIMITADA"
+        }
+    }
+    
+    # Caixa de seleção para escolher o originador
+    escolha_originador = st.selectbox("Selecione o Originador Pré-Cadastrado:", list(originadores.keys()))
+    
+    # Pega os dados automáticos com base na escolha
+    dados_selecionados = originadores[escolha_originador]
+    # ----------------------------------------------------
+    
     with st.expander("🛠️ 1. Configurações do Cabeçalho (Header - Linha 0)", expanded=True):
         col_h1, col_h2, col_h3 = st.columns(3)
         with col_h1:
-            cod_originador = st.text_input("Código do Originador (CNPJ)*", value="20260463354125000130", max_chars=20)
+            # Passamos os valores dinâmicos encontrados no dicionário acima
+            cod_originador = st.text_input("Código do Originador*", value=dados_selecionados["codigo"], max_chars=20)
             literal_remessa = st.text_input("Literal Remessa", value="REMESSA", max_chars=7)
             cod_banco = st.text_input("Código do Banco", value="439", max_chars=3)
         with col_h2:
-            nome_originador = st.text_input("Nome do Originador*", value="NX CAPITAL FUNDO DE INVESTIMEN", max_chars=30)
+            nome_originador = st.text_input("Nome do Originador*", value=dados_selecionados["nome"], max_chars=30)
             cod_servico = st.text_input("Código do Serviço", value="01", max_chars=2)
             nome_banco = st.text_input("Nome do Banco", value="ID CTVM", max_chars=15)
         with col_h3:
