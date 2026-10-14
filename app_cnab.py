@@ -282,6 +282,10 @@ elif opcao_menu == "⚙️ 3. Gerador CNAB":
             "codigo": "00000000000000000100",
             "nome": "NOME DO ORIGINADOR"
         },
+        "Vulti": {
+            "codigo": "20260752084835000170",
+            "nome": "VULTI FUNDO DE INVESTIMENTO EM"
+        },
         "NX Capital": {
             "codigo": "20260463354125000130",
             "nome": "NX CAPITAL FUNDO DE INVESTIMEN"
